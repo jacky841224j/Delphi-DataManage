@@ -1,0 +1,18 @@
+SELECT 
+left(ss.[Student_No],3) AS 學校代碼,
+s.Sch_Name as 學校名稱,
+--case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) end as 分校註記,
+[Sub_No] AS 測驗科目代碼,
+sc.grade as 年級,
+sc.[Class_No] as 班級代碼,
+(sc.grade +'年'+rtrim(sc.Class_Name)+'班') as 班級名稱,
+st.[Seat_No] as 座號,
+[Student_Name] as 學生姓名,
+[Sex] as 性別代碼,
+Remark1 as 身分註記,
+ans as 原始作答反映
+FROM [108TaTong].[dbo].[Sub_Score] ss
+left join School  s on left([Student_No],3) = s.Sch_Code 
+left join Student st on ss.[Student_No] = st.Student_No 
+left join Sch_Class sc on s.Sch_Code = sc.Sch_Code
+order by s.Sch_Code
