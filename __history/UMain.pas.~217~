@@ -69,7 +69,7 @@ type
     TabSheet6: TTabSheet;
     CheckListBox4: TCheckListBox;
     CheckBox5: TCheckBox;
-    Button1: TButton;
+    btnExcel: TButton;
     chkAll: TCheckBox;
     CheckListBox5: TCheckListBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -96,6 +96,9 @@ type
     procedure BitBtn2Click(Sender: TObject);
     procedure cmbExamChange(Sender: TObject);
     procedure CheckListBox4ClickCheck(Sender: TObject);
+    procedure CheckBox5Click(Sender: TObject);
+    procedure chkAllClick(Sender: TObject);
+    procedure btnExcelClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -112,6 +115,159 @@ implementation
 {$R *.dfm}
 
 uses DataM, StrUtil;
+
+procedure TfmMain.btnExcelClick(Sender: TObject);
+var
+  str,str2,str3,strtemp : string ;
+  SQLtemp,SListA : TStringList;
+  i,ii,iii,iiii,count : integer;
+  ExcelApp: Variant;
+begin
+  SQLtemp := TStringList.Create;
+  SListA  := TStringList.Create;
+  //插入標題
+  str3 :=
+  '學校代碼' + #9 + '學校名稱' + #9 + '分校/分班註記' + #9 + '測驗科目代碼' + #9 +'年級' + #9+'班級代碼' + #9+'班級名稱'+ #9
+  +'座號' + #9+'學生姓名' + #9+'性別代碼' + #9+'導師姓名' + #9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9
+  +'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
+
+  if SaveDialog1.Execute then
+  begin
+    try
+      ExcelApp := CreateOleObject('Excel.Application'); //Create Excel 物件
+    except
+      ShowMessage('尚未安裝任何 Excel 版本.');
+      Exit;
+    end;
+    try
+      //分類-學校
+      for I := 0 to CheckListBox4.items.Count - 1 do
+      if CheckListBox4.Checked[i] then
+      begin
+
+        {$region '科目總數'}
+        SQLStr  := 'SELECT Sub_No '
+                 + 'FROM Exam_Sub '
+                 + 'where Exam_No =' + QuotedStr(cmbExam.text)  ;
+        OpenSQL(DM.qryTemp, SQLStr);
+        count :=  DM.qryTemp.RecordCount;
+         {$endregion}
+
+        //分類-科目
+        for ii := 1 to count  do
+        begin
+
+          {$region '總題數'}
+          SQLStr := 'Select Count(*) as iCount From Sub_Ans'
+                  + ' Where Exam_No='+#39+Trim(cmbExam.Text)+ #39
+                  + ' And Sub_No='+#39+DM.qryTemp.FieldByName('Sub_No').AsString+#39;
+          OpenSQL(DM.qrySearch, SQLStr);
+          count:= DM.qrySearch.FieldByName('iCount').AsInteger;
+
+          for iii  := 1 to count  do
+            str3 := str3 +'第'+IntToStr(iii)+'題'+#9;
+          SListA.Append(str3);
+          {$endregion}
+
+          SQLStr := ' SELECT left(ss.[Student_No],3) AS 學校代碼, '
+                  + '       s.Sch_Name as 學校名稱, '
+        //          + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) end as 分校註記,'
+                  + '       Sub_No AS 測驗科目代碼, '
+                  + '       sc.grade as 年級, '
+                  + '       sc.Class_No as 班級代碼, '
+                  + '       (sc.grade +''年''+rtrim(sc.Class_Name)+''班'') as 班級名稱, '
+                  + '       st.Seat_No as 座號, '
+                  + '       Student_Name as 學生姓名, '
+                  + '       Sex as 性別代碼, '
+                  + '       Remark1 as 身分註記,'
+                  + '       ans as 原始作答反映 '
+                  + ' FROM Sub_Score ss '
+                  + ' left join School  s on left([Student_No],3) = s.Sch_Code '
+                  + ' left join Student st on ss.Student_No = st.Student_No '
+                  + ' left join Sch_Class sc on s.Sch_Code = sc.Sch_Code and sc.Class_No = st.Class_No '
+                  + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString+'and left(ss.[Student_No],3) = '+ Copy(CheckListBox4.Items[i],0,3) + 'and  Exam_No = ' +QuotedStr(cmbExam.Text)
+                  + ' order by s.Sch_Code,Sub_No,sc.Class_No,st.Seat_No';
+          OpenSQL(DM.qrySearch, SQLStr);
+
+          //設定Excel
+
+          ExcelApp.Visible := true; //不顯示Excel 視窗
+          if ii = 1 then
+            Excelapp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
+
+            ExcelApp.WorkSheets[ii].Activate;
+            ExcelApp.WorkSheets[ii].Name := ii;
+            DM.qrySearch.FieldByName('測驗科目代碼').AsString;
+//            ExcelApp.WorkSheets[ii].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
+
+//          ExcelApp.WorkSheets[ii].Cells.NumberFormatLocal :=  '@'; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
+          //分類-考生
+          for iii := 0 to DM.qrySearch.FieldCount - 1 do
+          begin
+
+            {$region '切割身分註記'}
+            SQLtemp.Clear;
+            str := '';
+            SQLtemp.Add(DM.qrySearch.FieldByName('身分註記').AsString);
+            SQLtemp.Delimiter := '-';
+            SQLtemp.DelimitedText := SQLtemp.Text;
+            for iiii := 0 to SQLtemp.Count -1  do
+            begin
+              str := str + SQLtemp[iiii] +#9;
+            end;
+            SQLtemp.Clear;
+            {$endregion}
+
+            {$region '切割原始作答'}
+            str2 := '';
+            SQLtemp.Add(DM.qrySearch.FieldByName('原始作答反映').AsString);
+            SQLtemp.Delimiter := ',';
+            SQLtemp.DelimitedText := SQLtemp.Text;
+            for iiii := 0 to SQLtemp.Count -1  do
+            begin
+              if Length(SQLtemp[iiii]) >1 then
+                str2 := str2 + '?' +#9
+              else
+                str2 := str2 + SQLtemp[iiii] +#9;
+            end;
+            {$endregion}
+
+            //儲存資料至剪貼簿
+            SListA.Add(
+                      DM.qrySearch.FieldByName('學校代碼').AsString+#9
+                    + DM.qrySearch.FieldByName('學校名稱').AsString+#9
+//                    + DM.qrySearch.FieldByName('分校註記').AsString+#9
+                    + DM.qrySearch.FieldByName('測驗科目代碼').AsString+#9
+                    + DM.qrySearch.FieldByName('年級').AsString+#9
+                    + Trim(DM.qrySearch.FieldByName('班級代碼').AsString)+#9
+                    + Trim(DM.qrySearch.FieldByName('班級名稱').AsString)+#9
+                    + DM.qrySearch.FieldByName('座號').AsString+#9
+                    + DM.qrySearch.FieldByName('學生姓名').AsString+#9
+                    + DM.qrySearch.FieldByName('性別代碼').AsString+#9
+                    + str+#9    //身分註記
+                    + str2);   //原始作答
+            DM.qrySearch.Next;
+          end;
+          Clipboard.Clear; //先清空剪貼簿
+          Clipboard.AsText := SListA.Text; //複製資料到剪貼簿
+          ExcelApp.Range['A1'].Select;
+          ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
+          SListA.clear;
+        end;
+        DM.qryTemp.next; //切換下一筆科目
+      end;
+    finally
+      SQLtemp.Free;
+      ExcelApp.ActiveWorkBook.Saved := True; //設定不存檔，若不設定關閉時會出現"是否存檔的對話框"
+      ExcelApp.WorkBooks[1].SaveAs(SaveDialog1.FileName); //存檔
+      ExcelApp.WorkBooks.close; //關閉Excel
+      ExcelApp.Quit; //離開Excel
+      ExcelApp := Unassigned; //釋放ExcelApp;
+      ShowMessage('匯出完成');
+    end;
+  end
+  else ShowMessage('請選擇儲存位置');
+end;
 
 procedure TfmMain.btnExitClick(Sender: TObject);
 begin
@@ -1190,6 +1346,22 @@ begin
 
 end;
 
+procedure TfmMain.CheckBox5Click(Sender: TObject);
+VAR
+  ii : Integer;
+begin
+  if CheckBox5.Checked then
+  begin
+    for ii := 0 to CheckListBox4.Count - 1 do
+      CheckListBox4.Checked[ii] := True;
+  end
+  else begin
+    for ii := 0 to CheckListBox4.Count - 1 do
+      CheckListBox4.Checked[ii] := False;
+  end;
+  CheckListBox4ClickCheck(nil);
+end;
+
 procedure TfmMain.CheckListBox4ClickCheck(Sender: TObject);
 var
   ii,xx : integer;
@@ -1216,12 +1388,28 @@ begin
       OpenSQL(DM.qryTemp, SQLStr);
       for XX := 0 to DM.qryTemp.RecordCount - 1 do
       begin
-        CheckListBox5.Items.Add(Sch_Name.text + ' - ' + DM.qryTemp.Fields[XX]);
+        CheckListBox5.Items.Add(Sch_Name.text + ' - ' + DM.qryTemp.FieldByName('Sub_No').AsString);
+        DM.qryTemp.Next;
       end;
 
       Sch_Code.Clear;
       Sch_Name.Clear;
     end
+end;
+
+procedure TfmMain.chkAllClick(Sender: TObject);
+var
+ ii : Integer;
+begin
+  if chkAll.Checked then
+  begin
+    for ii := 0 to CheckListBox5.Count - 1 do
+      CheckListBox5.Checked[ii] := True;
+  end
+  else begin
+    for ii := 0 to CheckListBox5.Count - 1 do
+      CheckListBox5.Checked[ii] := False;
+  end;
 end;
 
 procedure TfmMain.cmbDBNameClick(Sender: TObject);

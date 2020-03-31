@@ -24,7 +24,6 @@ object fmMain: TfmMain
     Height = 113
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 914
     object Label1: TLabel
       Left = 13
       Top = 65
@@ -165,7 +164,6 @@ object fmMain: TfmMain
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = #23416#26657#22522#26412#36039#26009
-      ExplicitWidth = 906
       object Label2: TLabel
         Left = 18
         Top = 20
@@ -350,7 +348,6 @@ object fmMain: TfmMain
     object TabSheet2: TTabSheet
       Caption = #23416#26657#29677#32026#36039#26009
       ImageIndex = 1
-      ExplicitWidth = 906
       object Label3: TLabel
         Left = 37
         Top = 17
@@ -527,7 +524,6 @@ object fmMain: TfmMain
     object TabSheet3: TTabSheet
       Caption = #21443#21152#32771#35430#23416#26657#35373#23450
       ImageIndex = 2
-      ExplicitWidth = 906
       object DBGrid3: TDBGrid
         Left = 495
         Top = 0
@@ -654,7 +650,6 @@ object fmMain: TfmMain
     object TabSheet4: TTabSheet
       Caption = #31572#26696#21345#36039#26009
       ImageIndex = 3
-      ExplicitWidth = 906
       object Label5: TLabel
         Left = 492
         Top = 40
@@ -905,7 +900,6 @@ object fmMain: TfmMain
     object TabSheet5: TTabSheet
       Caption = #36039#26009#27298#26597
       ImageIndex = 4
-      ExplicitLeft = 6
       object Label4: TLabel
         Left = 435
         Top = 11
@@ -1032,13 +1026,11 @@ object fmMain: TfmMain
         Height = 16
         Align = alBottom
         TabOrder = 7
-        ExplicitWidth = 906
       end
     end
     object TabSheet6: TTabSheet
       Caption = #20316#31572#21453#25033#21295#20986
       ImageIndex = 5
-      ExplicitWidth = 906
       object CheckListBox4: TCheckListBox
         Left = 0
         Top = 32
@@ -1065,6 +1057,7 @@ object fmMain: TfmMain
         Height = 45
         Caption = 'Excel'#21295#20986
         TabOrder = 2
+        OnClick = btnExcelClick
       end
       object chkAll: TCheckBox
         Left = 438
@@ -1087,6 +1080,8 @@ object fmMain: TfmMain
     end
   end
   object SaveDialog1: TSaveDialog
+    FileName = '1090131'
+    Filter = '.xlsx|*.xlsx'
     Left = 528
     Top = 40
   end

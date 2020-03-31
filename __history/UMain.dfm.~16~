@@ -4,7 +4,7 @@ object fmMain: TfmMain
   BorderIcons = []
   Caption = 'fmMain'
   ClientHeight = 637
-  ClientWidth = 914
+  ClientWidth = 945
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object fmMain: TfmMain
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 914
+    Width = 945
     Height = 113
     Align = alTop
     TabOrder = 0
@@ -156,18 +156,14 @@ object fmMain: TfmMain
   object PageControl1: TPageControl
     Left = 0
     Top = 113
-    Width = 914
+    Width = 945
     Height = 524
-    ActivePage = TabSheet5
+    ActivePage = TabSheet6
     Align = alClient
     TabOrder = 1
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = #23416#26657#22522#26412#36039#26009
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label2: TLabel
         Left = 18
         Top = 20
@@ -300,7 +296,7 @@ object fmMain: TfmMain
       object DBGrid1: TDBGrid
         Left = 0
         Top = 72
-        Width = 906
+        Width = 937
         Height = 418
         Align = alBottom
         DataSource = DM.dsSch
@@ -352,10 +348,6 @@ object fmMain: TfmMain
     object TabSheet2: TTabSheet
       Caption = #23416#26657#29677#32026#36039#26009
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label3: TLabel
         Left = 37
         Top = 17
@@ -488,7 +480,7 @@ object fmMain: TfmMain
       object DBGrid2: TDBGrid
         Left = 0
         Top = 66
-        Width = 906
+        Width = 937
         Height = 424
         Align = alBottom
         Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
@@ -532,12 +524,8 @@ object fmMain: TfmMain
     object TabSheet3: TTabSheet
       Caption = #21443#21152#32771#35430#23416#26657#35373#23450
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object DBGrid3: TDBGrid
-        Left = 464
+        Left = 495
         Top = 0
         Width = 442
         Height = 490
@@ -1034,10 +1022,60 @@ object fmMain: TfmMain
       object ProgressBar1: TProgressBar
         Left = 0
         Top = 474
-        Width = 906
+        Width = 937
         Height = 16
         Align = alBottom
         TabOrder = 7
+      end
+    end
+    object TabSheet6: TTabSheet
+      Caption = #20316#31572#21453#25033#21295#20986
+      ImageIndex = 5
+      object CheckListBox4: TCheckListBox
+        Left = 0
+        Top = 32
+        Width = 241
+        Height = 458
+        OnClickCheck = CheckListBox4ClickCheck
+        Align = alCustom
+        ItemHeight = 19
+        TabOrder = 0
+      end
+      object CheckBox5: TCheckBox
+        Left = 189
+        Top = 1
+        Width = 52
+        Height = 25
+        Caption = #20840#36984
+        TabOrder = 1
+        OnClick = CheckBox5Click
+      end
+      object btnExcel: TButton
+        Left = 513
+        Top = 32
+        Width = 110
+        Height = 45
+        Caption = 'Excel'#21295#20986
+        TabOrder = 2
+        OnClick = btnExcelClick
+      end
+      object chkAll: TCheckBox
+        Left = 438
+        Top = 3
+        Width = 56
+        Height = 25
+        Caption = #20840#36984
+        TabOrder = 3
+        OnClick = chkAllClick
+      end
+      object CheckListBox5: TCheckListBox
+        Left = 253
+        Top = 32
+        Width = 241
+        Height = 457
+        Align = alCustom
+        ItemHeight = 19
+        TabOrder = 4
       end
     end
   end
