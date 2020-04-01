@@ -120,9 +120,9 @@ procedure TfmMain.btnExcelClick(Sender: TObject);
 var
   str,str2,str3,strtemp : string ;
   SQLtemp,SListA : TStringList;
-  i,ii,iii,iiii,count,QueCounut : integer;
-  SubCount : integer;
+  i,ii,iii,iiii,SubCount,QueCounut : integer;
   ExcelApp: Variant;
+  strFormat : OleVariant;
 begin
   SQLtemp := TStringList.Create;
   SListA  := TStringList.Create;
@@ -192,13 +192,11 @@ begin
           ExcelApp.Visible := true; //不顯示Excel 視窗
           if ii = 1 then
             Excelapp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
+          ExcelApp.WorkSheets[ii].Activate;
+          ExcelApp.WorkSheets[ii].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
+          strFormat := '@'; //@: 儲存格格式改為文字
+          ExcelApp.WorkSheets[ii].Cells.NumberFormatLocal := strFormat; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
 
-            ExcelApp.WorkSheets[ii].Activate;
-            ExcelApp.WorkSheets[ii].Name := ii;
-            DM.qrySearch.FieldByName('測驗科目代碼').AsString;
-//            ExcelApp.WorkSheets[ii].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
-
-//          ExcelApp.WorkSheets[ii].Cells.NumberFormatLocal :=  '@'; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
           //分類-考生
           for iii := 0 to DM.qrySearch.FieldCount - 1 do
           begin
@@ -251,8 +249,8 @@ begin
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
           SListA.clear;
+          DM.qryTemp.next; //切換下一筆科目
         end;
-        DM.qryTemp.next; //切換下一筆科目
       end;
     finally
       SQLtemp.Free;

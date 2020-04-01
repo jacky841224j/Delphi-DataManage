@@ -70,8 +70,7 @@ type
     CheckListBox4: TCheckListBox;
     CheckBox5: TCheckBox;
     btnExcel: TButton;
-    chkAll: TCheckBox;
-    CheckListBox5: TCheckListBox;
+    mmoCheck: TMemo;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -97,7 +96,6 @@ type
     procedure cmbExamChange(Sender: TObject);
     procedure CheckListBox4ClickCheck(Sender: TObject);
     procedure CheckBox5Click(Sender: TObject);
-    procedure chkAllClick(Sender: TObject);
     procedure btnExcelClick(Sender: TObject);
   private
     { Private declarations }
@@ -120,9 +118,9 @@ procedure TfmMain.btnExcelClick(Sender: TObject);
 var
   str,str2,str3,strtemp : string ;
   SQLtemp,SListA : TStringList;
-  i,ii,iii,iiii,count,QueCounut : integer;
-  SubCount : integer;
+  i,ii,iii,iiii,SubCount,QueCounut : integer;
   ExcelApp: Variant;
+  strFormat : OleVariant;
 begin
   SQLtemp := TStringList.Create;
   SListA  := TStringList.Create;
@@ -192,13 +190,11 @@ begin
           ExcelApp.Visible := true; //不顯示Excel 視窗
           if ii = 1 then
             Excelapp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
-
           ExcelApp.WorkSheets[ii].Activate;
-          ExcelApp.WorkSheets[ii].Name := ii;
-          DM.qrySearch.FieldByName('測驗科目代碼').AsString;
-//            ExcelApp.WorkSheets[ii].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
+          ExcelApp.WorkSheets[ii].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
+          strFormat := '@'; //@: 儲存格格式改為文字
+          ExcelApp.WorkSheets[ii].Cells.NumberFormatLocal := strFormat; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
 
-//          ExcelApp.WorkSheets[ii].Cells.NumberFormatLocal :=  '@'; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
           //分類-考生
           for iii := 0 to DM.qrySearch.FieldCount - 1 do
           begin
@@ -253,7 +249,6 @@ begin
           SListA.clear;
           DM.qryTemp.next; //切換下一筆科目
         end;
-
       end;
     finally
       SQLtemp.Free;
@@ -1369,8 +1364,6 @@ var
 begin
   Sch_Name := TStringList.Create;
   Sch_Code := TStringList.Create;
-  CheckListBox5.Clear;
-
   for ii := 0 to CheckListBox4.Count - 1 do
     if CheckListBox4.Checked[ii] then
     begin
@@ -1387,28 +1380,13 @@ begin
       OpenSQL(DM.qryTemp, SQLStr);
       for XX := 0 to DM.qryTemp.RecordCount - 1 do
       begin
-        CheckListBox5.Items.Add(Sch_Name.text + ' - ' + DM.qryTemp.FieldByName('Sub_No').AsString);
+        mmoCheck.Lines.Add(Sch_Name.text);
         DM.qryTemp.Next;
       end;
-
       Sch_Code.Clear;
       Sch_Name.Clear;
     end
-end;
-
-procedure TfmMain.chkAllClick(Sender: TObject);
-var
- ii : Integer;
-begin
-  if chkAll.Checked then
-  begin
-    for ii := 0 to CheckListBox5.Count - 1 do
-      CheckListBox5.Checked[ii] := True;
-  end
-  else begin
-    for ii := 0 to CheckListBox5.Count - 1 do
-      CheckListBox5.Checked[ii] := False;
-  end;
+    else mmoCheck.Lines.DelimitedText : Sch_Name.text;
 end;
 
 procedure TfmMain.cmbDBNameClick(Sender: TObject);

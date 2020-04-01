@@ -1031,6 +1031,7 @@ object fmMain: TfmMain
     object TabSheet6: TTabSheet
       Caption = #20316#31572#21453#25033#21295#20986
       ImageIndex = 5
+      ExplicitLeft = 6
       object CheckListBox4: TCheckListBox
         Left = 0
         Top = 32
@@ -1059,23 +1060,12 @@ object fmMain: TfmMain
         TabOrder = 2
         OnClick = btnExcelClick
       end
-      object chkAll: TCheckBox
-        Left = 438
-        Top = 3
-        Width = 56
-        Height = 25
-        Caption = #20840#36984
-        TabOrder = 3
-        OnClick = chkAllClick
-      end
-      object CheckListBox5: TCheckListBox
+      object mmoCheck: TMemo
         Left = 253
         Top = 32
-        Width = 241
+        Width = 204
         Height = 457
-        Align = alCustom
-        ItemHeight = 19
-        TabOrder = 4
+        TabOrder = 3
       end
     end
   end
