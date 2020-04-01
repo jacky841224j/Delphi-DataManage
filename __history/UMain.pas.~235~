@@ -120,7 +120,8 @@ procedure TfmMain.btnExcelClick(Sender: TObject);
 var
   str,str2,str3,strtemp : string ;
   SQLtemp,SListA : TStringList;
-  i,ii,iii,iiii,count : integer;
+  i,ii,iii,iiii,count,QueCounut : integer;
+  SubCount : integer;
   ExcelApp: Variant;
 begin
   SQLtemp := TStringList.Create;
@@ -140,56 +141,52 @@ begin
       Exit;
     end;
     try
+      {$region '判斷科目總數'}
+      SQLStr  := 'SELECT Sub_No '
+               + 'FROM Exam_Sub '
+               + 'where Exam_No =' + QuotedStr(cmbExam.text)  ;
+      OpenSQL(DM.qryTemp, SQLStr);
+      SubCount :=  DM.qryTemp.RecordCount;
+      {$endregion}
       //分類-學校
       for I := 0 to CheckListBox4.items.Count - 1 do
       if CheckListBox4.Checked[i] then
       begin
-
-        {$region '科目總數'}
-        SQLStr  := 'SELECT Sub_No '
-                 + 'FROM Exam_Sub '
-                 + 'where Exam_No =' + QuotedStr(cmbExam.text)  ;
-        OpenSQL(DM.qryTemp, SQLStr);
-        count :=  DM.qryTemp.RecordCount;
-         {$endregion}
-
-         SQLStr := ' SELECT left(ss.[Student_No],3) AS 學校代碼, '
-        + '       s.Sch_Name as 學校名稱, '
-//          + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) end as 分校註記,'
-        + '       Sub_No AS 測驗科目代碼, '
-        + '       sc.grade as 年級, '
-        + '       sc.Class_No as 班級代碼, '
-        + '       (sc.grade +''年''+rtrim(sc.Class_Name)+''班'') as 班級名稱, '
-        + '       st.Seat_No as 座號, '
-        + '       Student_Name as 學生姓名, '
-        + '       Sex as 性別代碼, '
-        + '       Remark1 as 身分註記,'
-        + '       ans as 原始作答反映 '
-        + ' FROM Sub_Score ss '
-        + ' left join School  s on left([Student_No],3) = s.Sch_Code '
-        + ' left join Student st on ss.Student_No = st.Student_No '
-        + ' left join Sch_Class sc on s.Sch_Code = sc.Sch_Code and sc.Class_No = st.Class_No '
-        + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString+'and left(ss.[Student_No],3) = '+ Copy(CheckListBox4.Items[i],0,3) + 'and  Exam_No = ' +QuotedStr(cmbExam.Text)
-        + ' order by s.Sch_Code,Sub_No,sc.Class_No,st.Seat_No';
-        OpenSQL(DM.qrySearch, SQLStr);
-
-
         //分類-科目
-        for ii := 1 to count  do
+        for ii := 1 to SubCount  do
         begin
+          SQLStr := ' SELECT left(ss.[Student_No],3) AS 學校代碼, '
+                  + '       s.Sch_Name as 學校名稱, '
+          //          + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) end as 分校註記,'
+                  + '       Sub_No AS 測驗科目代碼, '
+                  + '       sc.grade as 年級, '
+                  + '       sc.Class_No as 班級代碼, '
+                  + '       (sc.grade +''年''+rtrim(sc.Class_Name)+''班'') as 班級名稱, '
+                  + '       st.Seat_No as 座號, '
+                  + '       Student_Name as 學生姓名, '
+                  + '       Sex as 性別代碼, '
+                  + '       Remark1 as 身分註記,'
+                  + '       ans as 原始作答反映 '
+                  + ' FROM Sub_Score ss '
+                  + ' left join School  s on left([Student_No],3) = s.Sch_Code '
+                  + ' left join Student st on ss.Student_No = st.Student_No '
+                  + ' left join Sch_Class sc on s.Sch_Code = sc.Sch_Code and sc.Class_No = st.Class_No '
+                  + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString+'and left(ss.[Student_No],3) = '+ Copy(CheckListBox4.Items[i],0,3) + 'and  Exam_No = ' +QuotedStr(cmbExam.Text)
+                  + ' order by s.Sch_Code,Sub_No,sc.Class_No,st.Seat_No';
+          OpenSQL(DM.qrySearch, SQLStr);
 
-          {$region '總題數'}
+
+         {$region '總題數'}
           SQLStr := 'Select Count(*) as iCount From Sub_Ans'
                   + ' Where Exam_No='+#39+Trim(cmbExam.Text)+ #39
                   + ' And Sub_No='+#39+DM.qryTemp.FieldByName('Sub_No').AsString+#39;
-          OpenSQL(DM.qrySearch, SQLStr);
-          count:= DM.qrySearch.FieldByName('iCount').AsInteger;
+          OpenSQL(DM.qrySClass, SQLStr);
+          count1:= DM.qrySClass.FieldByName('iCount').AsInteger;
 
-          for iii  := 1 to count  do
+          for iii  := 1 to count1  do
             str3 := str3 +'第'+IntToStr(iii)+'題'+#9;
           SListA.Append(str3);
           {$endregion}
-
 
 
           //設定Excel
