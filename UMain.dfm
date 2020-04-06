@@ -1031,7 +1031,6 @@ object fmMain: TfmMain
     object TabSheet6: TTabSheet
       Caption = #20316#31572#21453#25033#21295#20986
       ImageIndex = 5
-      ExplicitLeft = 6
       object CheckListBox4: TCheckListBox
         Left = 0
         Top = 32

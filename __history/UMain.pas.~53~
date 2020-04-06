@@ -116,7 +116,7 @@ uses DataM, StrUtil;
 
 procedure TfmMain.btnExcelClick(Sender: TObject);
 var
-  str,str2,str3,strtemp : string ;
+  str,str2,strTitle,strTitle2,strtemp : string ;
   SQLtemp,SListA : TStringList;
   i,ii,iii,iiii,SubCount,QueCounut : integer;
   ExcelApp: Variant;
@@ -125,10 +125,16 @@ begin
   SQLtemp := TStringList.Create;
   SListA  := TStringList.Create;
   //插入標題
-  str3 :=
-  '學校代碼' + #9 + '學校名稱' + #9 + '分校/分班註記' + #9 + '測驗科目代碼' + #9 +'年級' + #9+'班級代碼' + #9+'班級名稱'+ #9
-  +'座號' + #9+'學生姓名' + #9+'性別代碼' + #9+'導師姓名' + #9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9
-  +'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
+  strTitle :=
+              '學校代碼' + #9 + '學校名稱' + #9 + '分校/分班註記' + #9 + '測驗科目代碼' + #9 +'年級' + #9+'班級代碼' + #9+'班級名稱'+ #9
+              +'座號' + #9+'學生姓名' + #9+'性別代碼' + #9+'導師姓名' + #9+'身分註記' + #9+#9+#9+#9+#9+#9+#9+'學生原始作答反應'+#9;
+  strTitle2 :=
+              #9+#9+#9+#9+#9+#9+#9+#9+#9+#9+#9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9+'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
+
+//  str3 :=
+//  '學校代碼' + #9 + '學校名稱' + #9 + '分校/分班註記' + #9 + '測驗科目代碼' + #9 +'年級' + #9+'班級代碼' + #9+'班級名稱'+ #9
+//  +'座號' + #9+'學生姓名' + #9+'性別代碼' + #9+'導師姓名' + #9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9
+//  +'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
 
   if SaveDialog1.Execute then
   begin
@@ -179,15 +185,23 @@ begin
                   + ' And Sub_No='+#39+DM.qryTemp.FieldByName('Sub_No').AsString+#39;
           OpenSQL(DM.qrySClass, SQLStr);
           QueCounut:= DM.qrySClass.FieldByName('iCount').AsInteger;
+          strTitle2 := '';
+          strTitle2 :=
+              #9+#9+#9+#9+#9+#9+#9+#9+#9+#9+#9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9+'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
 
           for iii  := 1 to QueCounut  do
-            str3 := str3 +'第'+IntToStr(iii)+'題'+#9;
-          SListA.Append(str3);
+            begin
+//              strTitle  := strTitle +#9;
+              strTitle2 := strTitle2 +'第'+IntToStr(iii)+'題'+#9;
+            end;
+
+          SListA.Append(strTitle);
+          SListA.Append(strTitle2);
           {$endregion}
 
           //設定Excel
-
-          ExcelApp.Visible := true; //不顯示Excel 視窗
+          ExcelApp.DisplayAlerts := False;  //關閉提示視窗
+          ExcelApp.Visible := FALSE; //不顯示Excel 視窗
           if ii = 1 then
             Excelapp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
           ExcelApp.WorkSheets[ii].Activate;
@@ -244,10 +258,27 @@ begin
           end;
           Clipboard.Clear; //先清空剪貼簿
           Clipboard.AsText := SListA.Text; //複製資料到剪貼簿
+          {$region '設定Excel 格式'}
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
+          //單元格背景色
+          ExcelApp.Rows[1].Interior.Color:= RGB(153,204,255);
+          ExcelApp.Range['S1'].Interior.Color:= RGB(255,255,0);
+          //合併儲存格
+          ExcelApp.ActiveSheet.Range['L1:R1'].Merge;
+//          for iii := 19 to QueCounut+19 do
+//          ExcelApp.ActiveSheet.Range['S1:BP1'].Merge;
+           ExcelApp.ActiveSheet.Range[ExcelApp.cells[iii,14],ExcelApp.cells[iii,QueCounut+14]].Merge;
+          for iii := 1 to 11 do
+            ExcelApp.ActiveSheet.Range[ExcelApp.cells[1,iii],ExcelApp.cells[2,iii]].Merge;
+          //置中
+          ExcelApp.Range['S1'].HorizontalAlignment:=-4108;
+          ExcelApp.Range['L1'].HorizontalAlignment:=-4108;
+
+          {$endregion}
           SListA.clear;
           DM.qryTemp.next; //切換下一筆科目
+          DM.qrySClass.Next;
         end;
       end;
     finally
@@ -1358,25 +1389,12 @@ end;
 
 procedure TfmMain.CheckListBox4ClickCheck(Sender: TObject);
 var
-  ii,xx : integer;
-  Sch_Name,Sch_Code : TStringList;
-  Str2 : string;
+  ii : integer;
 begin
-  Sch_Name := TStringList.Create;
-  Sch_Code := TStringList.Create;
+  mmoCheck.Clear;
   for ii := 0 to CheckListBox4.Count - 1 do
     if CheckListBox4.Checked[ii] then
-    begin
-//      Sch_Name.Text := CheckListBox4.Items[ii];
-//      Sch_Name.Delimiter := '-';
-//      Sch_Name.DelimitedText := Sch_Name.Text;
-//      Sch_Code.Add(Sch_Name[0]);
-//      Sch_Name.Delete(0);
       mmoCheck.Lines.Add(CheckListBox4.Items[ii]);
-//      Sch_Code.Clear;
-//      Sch_Name.Clear;
-    end
-
 end;
 
 procedure TfmMain.cmbDBNameClick(Sender: TObject);
