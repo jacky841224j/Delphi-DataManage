@@ -118,7 +118,7 @@ procedure TfmMain.btnExcelClick(Sender: TObject);
 var
   str,str2,strTitle,strTitle2,strtemp : string ;
   SQLtemp,SListA : TStringList;
-  i,ii,iii,iiii,SubCount,QueCounut : integer;
+  i,ii,iii,iiii,SubCount,QueCounut,RowsCount,ColCount : integer;
   ExcelApp: Variant;
   strFormat : OleVariant;
 begin
@@ -262,19 +262,40 @@ begin
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
           //單元格背景色
+          RowsCount := ExcelApp.ActiveSheet.UsedRange.Rows.Count ;
+          ColCount  := ExcelApp.ActiveSheet.UsedRange.Columns.Count ;
+          for Iii := 1 to  RowsCount  do
+          begin
+            if IIi mod 2 = 0  then
+            begin
+              ExcelApp.Rows[IiI].Interior.Color:= RGB(235, 241, 222) ;
+            end
+            else
+            begin
+              ExcelApp.Rows[IiI].Interior.Color:= RGB(242, 220, 219);
+            end;
+            //框線
+            for IIII := 1 to RowsCount  do
+            begin
+              ExcelApp.cells(IIII,III).Borders[8].LineStyle := 1;
+              ExcelApp.cells(IIII,III).Borders[9].LineStyle := 1;
+              ExcelApp.cells(IIII,III).Borders[10].LineStyle := 1;
+              ExcelApp.cells(IIII,III).Borders[8].Weight := xlThin;
+              ExcelApp.cells(IIII,III).Borders[9].Weight := xlThin;
+              ExcelApp.cells(IIII,III).Borders[10].Weight := xlThin;
+            end;
+          end;
           ExcelApp.Rows[1].Interior.Color:= RGB(153,204,255);
           ExcelApp.Range['S1'].Interior.Color:= RGB(255,255,0);
+          ExcelApp.Range['L2:R2'].Interior.Color:= RGB(197,217,241);
+          ExcelApp.Range[ExcelApp.cells[2,19],ExcelApp.cells[2,QueCounut+18]].Interior.Color:= RGB(255,255,204);
           //合併儲存格
+          ExcelApp.ActiveSheet.Range[ExcelApp.cells[1,19],ExcelApp.cells[1,QueCounut+18]].Merge;
           ExcelApp.ActiveSheet.Range['L1:R1'].Merge;
-//          for iii := 19 to QueCounut+19 do
-//          ExcelApp.ActiveSheet.Range['S1:BP1'].Merge;
-           ExcelApp.ActiveSheet.Range[ExcelApp.cells[iii,16],ExcelApp.cells[iii,QueCounut+16]].Merge;
           for iii := 1 to 11 do
             ExcelApp.ActiveSheet.Range[ExcelApp.cells[1,iii],ExcelApp.cells[2,iii]].Merge;
           //置中
-          ExcelApp.Range['S1'].HorizontalAlignment:=-4108;
-          ExcelApp.Range['L1'].HorizontalAlignment:=-4108;
-
+          ExcelApp.Cells.HorizontalAlignment:=-4108;
           {$endregion}
           SListA.clear;
           DM.qryTemp.next; //切換下一筆科目

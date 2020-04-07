@@ -118,7 +118,7 @@ procedure TfmMain.btnExcelClick(Sender: TObject);
 var
   str,str2,strTitle,strTitle2,strtemp : string ;
   SQLtemp,SListA : TStringList;
-  i,ii,iii,iiii,SubCount,QueCounut : integer;
+  i,x,y,z,SubCount,QueCounut,RowsCount,ColCount : integer;
   ExcelApp: Variant;
   strFormat : OleVariant;
 begin
@@ -157,7 +157,7 @@ begin
       if CheckListBox4.Checked[i] then
       begin
         //分類-科目
-        for ii := 1 to SubCount  do
+        for x := 1 to SubCount  do
         begin
           SQLStr := ' SELECT left(ss.[Student_No],3) AS 學校代碼, '
                   + '       s.Sch_Name as 學校名稱, '
@@ -189,10 +189,10 @@ begin
           strTitle2 :=
               #9+#9+#9+#9+#9+#9+#9+#9+#9+#9+#9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9+'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
 
-          for iii  := 1 to QueCounut  do
+          for y  := 1 to QueCounut  do
             begin
 //              strTitle  := strTitle +#9;
-              strTitle2 := strTitle2 +'第'+IntToStr(iii)+'題'+#9;
+              strTitle2 := strTitle2 +'第'+IntToStr(y)+'題'+#9;
             end;
 
           SListA.Append(strTitle);
@@ -202,15 +202,15 @@ begin
           //設定Excel
           ExcelApp.DisplayAlerts := False;  //關閉提示視窗
           ExcelApp.Visible := FALSE; //不顯示Excel 視窗
-          if ii = 1 then
+          if x = 1 then
             Excelapp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
-          ExcelApp.WorkSheets[ii].Activate;
-          ExcelApp.WorkSheets[ii].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
+          ExcelApp.WorkSheets[x].Activate;
+          ExcelApp.WorkSheets[x].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
           strFormat := '@'; //@: 儲存格格式改為文字
-          ExcelApp.WorkSheets[ii].Cells.NumberFormatLocal := strFormat; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
+          ExcelApp.WorkSheets[x].Cells.NumberFormatLocal := strFormat; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
 
           //分類-考生
-          for iii := 0 to DM.qrySearch.FieldCount - 1 do
+          for y := 0 to DM.qrySearch.FieldCount - 1 do
           begin
 
             {$region '切割身分註記'}
@@ -219,9 +219,9 @@ begin
             SQLtemp.Add(DM.qrySearch.FieldByName('身分註記').AsString);
             SQLtemp.Delimiter := '-';
             SQLtemp.DelimitedText := SQLtemp.Text;
-            for iiii := 0 to SQLtemp.Count -1  do
+            for z := 0 to SQLtemp.Count -1  do
             begin
-              str := str + SQLtemp[iiii] +#9;
+              str := str + SQLtemp[z] +#9;
             end;
             SQLtemp.Clear;
             {$endregion}
@@ -231,12 +231,12 @@ begin
             SQLtemp.Add(DM.qrySearch.FieldByName('原始作答反映').AsString);
             SQLtemp.Delimiter := ',';
             SQLtemp.DelimitedText := SQLtemp.Text;
-            for iiii := 0 to SQLtemp.Count -1  do
+            for z := 0 to SQLtemp.Count -1  do
             begin
-              if Length(SQLtemp[iiii]) >1 then
+              if Length(SQLtemp[z]) >1 then
                 str2 := str2 + '?' +#9
               else
-                str2 := str2 + SQLtemp[iiii] +#9;
+                str2 := str2 + SQLtemp[z] +#9;
             end;
             {$endregion}
 
@@ -262,13 +262,38 @@ begin
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
           //單元格背景色
+          RowsCount := ExcelApp.ActiveSheet.UsedRange.Rows.Count ;
+          ColCount  := ExcelApp.ActiveSheet.UsedRange.Columns.Count ;
+          for y := 1 to  RowsCount  do
+          begin
+            if y mod 2 = 0  then
+            begin
+              ExcelApp.Rows[y].Interior.Color:= RGB(235, 241, 222) ;
+            end
+            else
+            begin
+              ExcelApp.Rows[y].Interior.Color:= RGB(242, 220, 219);
+            end;
+            //框線
+            for z := 1 to ColCount  do
+            begin
+              ExcelApp.cells[y,z].Borders[8].LineStyle := 1;
+              ExcelApp.cells[y,z].Borders[9].LineStyle := 1;
+              ExcelApp.cells[y,z].Borders[10].LineStyle := 1;
+              ExcelApp.cells[y,z].Borders[8].Weight := xlThin;
+              ExcelApp.cells[y,z].Borders[9].Weight := xlThin;
+              ExcelApp.cells[y,z].Borders[10].Weight := xlThin;
+            end;
+          end;
           ExcelApp.Rows[1].Interior.Color:= RGB(153,204,255);
           ExcelApp.Range['S1'].Interior.Color:= RGB(255,255,0);
+          ExcelApp.Range['L2:R2'].Interior.Color:= RGB(197,217,241);
+          ExcelApp.Range[ExcelApp.cells[2,19],ExcelApp.cells[2,QueCounut+18]].Interior.Color:= RGB(255,255,204);
           //合併儲存格
-          ExcelApp.ActiveSheet.Range[ExcelApp.cells[1,19],ExcelApp.cells[1,QueCounut+19]].Merge;
+          ExcelApp.ActiveSheet.Range[ExcelApp.cells[1,19],ExcelApp.cells[1,QueCounut+18]].Merge;
           ExcelApp.ActiveSheet.Range['L1:R1'].Merge;
-          for iii := 1 to 11 do
-            ExcelApp.ActiveSheet.Range[ExcelApp.cells[1,iii],ExcelApp.cells[2,iii]].Merge;
+          for y := 1 to 11 do
+            ExcelApp.ActiveSheet.Range[ExcelApp.cells[1,y],ExcelApp.cells[2,y]].Merge;
           //置中
           ExcelApp.Cells.HorizontalAlignment:=-4108;
           {$endregion}
