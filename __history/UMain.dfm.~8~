@@ -1050,13 +1050,6 @@ object fmMain: TfmMain
         Top = 30
         Width = 931
         Height = 21
-        ForeColor = clSkyBlue
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = []
-        ParentFont = False
         Progress = 0
       end
       object gTotal: TGauge
@@ -1064,13 +1057,6 @@ object fmMain: TfmMain
         Top = 3
         Width = 931
         Height = 21
-        ForeColor = clNavy
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clNavy
-        Font.Height = -16
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = [fsBold]
-        ParentFont = False
         Progress = 0
       end
       object CheckListBox4: TCheckListBox

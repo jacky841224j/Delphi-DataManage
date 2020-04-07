@@ -1031,99 +1031,39 @@ object fmMain: TfmMain
     object TabSheet6: TTabSheet
       Caption = #20316#31572#21453#25033#21295#20986
       ImageIndex = 5
-      ExplicitLeft = 6
-      object lbl1: TLabel
-        Left = 448
-        Top = 64
-        Width = 84
-        Height = 26
-        Caption = #24050#36984#23416#26657
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -21
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
-      object g1: TGauge
-        Left = 3
-        Top = 30
-        Width = 931
-        Height = 21
-        ForeColor = clSkyBlue
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = []
-        ParentFont = False
-        Progress = 0
-      end
-      object gTotal: TGauge
-        Left = 3
-        Top = 3
-        Width = 931
-        Height = 21
-        ForeColor = clNavy
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clNavy
-        Font.Height = -16
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = [fsBold]
-        ParentFont = False
-        Progress = 0
-      end
       object CheckListBox4: TCheckListBox
-        Left = 12
-        Top = 96
+        Left = 0
+        Top = 32
         Width = 241
-        Height = 391
+        Height = 458
         OnClickCheck = CheckListBox4ClickCheck
         Align = alCustom
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -24
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = []
-        ItemHeight = 30
-        ParentFont = False
+        ItemHeight = 19
         TabOrder = 0
       end
       object CheckBox5: TCheckBox
-        Left = 192
-        Top = 65
-        Width = 61
+        Left = 189
+        Top = 1
+        Width = 52
         Height = 25
         Caption = #20840#36984
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -21
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = []
-        ParentFont = False
         TabOrder = 1
         OnClick = CheckBox5Click
       end
       object btnExcel: TButton
-        Left = 639
-        Top = 96
-        Width = 176
-        Height = 113
+        Left = 513
+        Top = 32
+        Width = 110
+        Height = 45
         Caption = 'Excel'#21295#20986
         TabOrder = 2
         OnClick = btnExcelClick
       end
       object mmoCheck: TMemo
-        Left = 291
-        Top = 96
-        Width = 241
-        Height = 391
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -24
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = [fsBold]
-        ParentFont = False
+        Left = 253
+        Top = 32
+        Width = 204
+        Height = 457
         TabOrder = 3
       end
     end
