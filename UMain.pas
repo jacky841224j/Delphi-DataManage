@@ -131,11 +131,8 @@ begin
   strTitle2 :=
               #9+#9+#9+#9+#9+#9+#9+#9+#9+#9+#9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9+'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
 
-//  str3 :=
-//  '學校代碼' + #9 + '學校名稱' + #9 + '分校/分班註記' + #9 + '測驗科目代碼' + #9 +'年級' + #9+'班級代碼' + #9+'班級名稱'+ #9
-//  +'座號' + #9+'學生姓名' + #9+'性別代碼' + #9+'導師姓名' + #9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9
-//  +'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
-
+  SaveDialog1.Filter := '.xlsx|*.xlsx';
+  SaveDialog1.FileName := '預設為學校名稱';
   if SaveDialog1.Execute then
   begin
     try
@@ -145,17 +142,20 @@ begin
       Exit;
     end;
     try
-      {$region '判斷科目總數'}
-      SQLStr  := 'SELECT Sub_No '
-               + 'FROM Exam_Sub '
-               + 'where Exam_No =' + QuotedStr(cmbExam.text)  ;
-      OpenSQL(DM.qryTemp, SQLStr);
-      SubCount :=  DM.qryTemp.RecordCount;
-      {$endregion}
+      try
       //分類-學校
       for I := 0 to CheckListBox4.items.Count - 1 do
       if CheckListBox4.Checked[i] then
       begin
+
+        {$region '判斷科目總數'}
+        SQLStr  := 'SELECT Sub_No '
+                 + 'FROM Exam_Sub '
+                 + 'where Exam_No =' + QuotedStr(cmbExam.text)  ;
+        OpenSQL(DM.qryTemp, SQLStr);
+        SubCount :=  DM.qryTemp.RecordCount;
+        {$endregion}
+
         //分類-科目
         for x := 1 to SubCount  do
         begin
@@ -179,7 +179,7 @@ begin
                   + ' order by s.Sch_Code,Sub_No,sc.Class_No,st.Seat_No';
           OpenSQL(DM.qrySearch, SQLStr);
 
-         {$region '總題數'}
+          {$region '總題數'}
           SQLStr := 'Select Count(*) as iCount From Sub_Ans'
                   + ' Where Exam_No='+#39+Trim(cmbExam.Text)+ #39
                   + ' And Sub_No='+#39+DM.qryTemp.FieldByName('Sub_No').AsString+#39;
@@ -188,10 +188,8 @@ begin
           strTitle2 := '';
           strTitle2 :=
               #9+#9+#9+#9+#9+#9+#9+#9+#9+#9+#9+'資賦優異' + #9+'資源班' + #9+'原住民子女' + #9'新住民子女'+ #9+'才藝班學生' + #9+'體育班學生' + #9+'非學校型態實驗教育者（在家教育）'+#9;
-
           for y  := 1 to QueCounut  do
             begin
-//              strTitle  := strTitle +#9;
               strTitle2 := strTitle2 +'第'+IntToStr(y)+'題'+#9;
             end;
 
@@ -205,14 +203,13 @@ begin
           if x = 1 then
             Excelapp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
           ExcelApp.WorkSheets[x].Activate;
-          ExcelApp.WorkSheets[x].Name := DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
+          ExcelApp.WorkSheets[x].Name := '科目代碼_'+  DM.qryTemp.FieldByName('Sub_No').AsString; //工作表更名
           strFormat := '@'; //@: 儲存格格式改為文字
           ExcelApp.WorkSheets[x].Cells.NumberFormatLocal := strFormat; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
 
           //分類-考生
           for y := 0 to DM.qrySearch.FieldCount - 1 do
           begin
-
             {$region '切割身分註記'}
             SQLtemp.Clear;
             str := '';
@@ -264,7 +261,7 @@ begin
           //單元格背景色
           RowsCount := ExcelApp.ActiveSheet.UsedRange.Rows.Count ;
           ColCount  := ExcelApp.ActiveSheet.UsedRange.Columns.Count ;
-          for y := 1 to  RowsCount  do
+          for y := 1 to  ExcelApp.ActiveSheet.UsedRange.Rows.Count  do
           begin
             if y mod 2 = 0  then
             begin
@@ -275,12 +272,8 @@ begin
               ExcelApp.Rows[y].Interior.Color:= RGB(242, 220, 219);
             end;
             //框線
-            for z := 1 to ColCount  do
+            for z := 1 to ExcelApp.ActiveSheet.UsedRange.Columns.Count  do
             begin
-              ExcelApp.cells[y,z].Borders[8].LineStyle := 1;
-              ExcelApp.cells[y,z].Borders[9].LineStyle := 1;
-              ExcelApp.cells[y,z].Borders[10].LineStyle := 1;
-              ExcelApp.cells[y,z].Borders[8].Weight := xlThin;
               ExcelApp.cells[y,z].Borders[9].Weight := xlThin;
               ExcelApp.cells[y,z].Borders[10].Weight := xlThin;
             end;
@@ -301,15 +294,19 @@ begin
           DM.qryTemp.next; //切換下一筆科目
           DM.qrySClass.Next;
         end;
+        ExcelApp.ActiveWorkBook.Saved := True; //設定不存檔，若不設定關閉時會出現"是否存檔的對話框"
+        ExcelApp.WorkBooks[1].SaveAs(ExtractFilePath(SaveDialog1.FileName)+DM.qrySearch.FieldByName('學校名稱').AsString+'_作答反應.xlsx'); //存檔
+        ExcelApp.WorkBooks.close; //關閉Excel
+      end;
+        ShowMessage('匯出完成');
+      except
+        ShowMessage('匯出錯誤，請重新檢查設定');
       end;
     finally
+      SListA.Free;
       SQLtemp.Free;
-      ExcelApp.ActiveWorkBook.Saved := True; //設定不存檔，若不設定關閉時會出現"是否存檔的對話框"
-      ExcelApp.WorkBooks[1].SaveAs(SaveDialog1.FileName); //存檔
-      ExcelApp.WorkBooks.close; //關閉Excel
       ExcelApp.Quit; //離開Excel
       ExcelApp := Unassigned; //釋放ExcelApp;
-      ShowMessage('匯出完成');
     end;
   end
   else ShowMessage('請選擇儲存位置');

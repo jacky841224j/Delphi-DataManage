@@ -1069,6 +1069,8 @@ object fmMain: TfmMain
     end
   end
   object SaveDialog1: TSaveDialog
+    FileName = '1090131'
+    Filter = '.xlsx|*.xlsx'
     Left = 528
     Top = 40
   end

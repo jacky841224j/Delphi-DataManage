@@ -1069,6 +1069,7 @@ object fmMain: TfmMain
     end
   end
   object SaveDialog1: TSaveDialog
+    FileName = 'C:\Users\190304\Desktop\'#23416#26657#36039#26009#36681#27284'\SchTT.dproj'
     Left = 528
     Top = 40
   end
