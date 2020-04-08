@@ -76,7 +76,6 @@ type
     gTotal: TGauge;
     lblTotal: TLabel;
     lblNow: TLabel;
-    lbl2: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -176,6 +175,7 @@ begin
 
           g1.MaxValue := DM.qrySearch.RecordCount + 7;
           g1.Progress := g1.Progress + 1;
+          lblNow.Caption := '目前狀態：讀取科目';
 
           {$region 'SQL總題數語法'}
           SQLStr := 'Select Count(*) as iCount From Sub_Ans' + ' Where Exam_No=' + #39 + Trim(cmbExam.Text) + #39 + ' And Sub_No=' + #39 + DM.qryTemp.FieldByName('Sub_No').AsString + #39;
@@ -184,6 +184,7 @@ begin
           {$endregion}
 
           g1.Progress := g1.Progress + 1;
+          lblNow.Caption := '目前狀態：讀取科目題數';
 
           {$region '儲存Excel Title'}
           strTitle2 := '';
@@ -213,13 +214,12 @@ begin
           {$endregion}
 
           g1.Progress := g1.Progress + 1;
-          lblNow.Caption := '目前狀態：初始化Excel設定';
+          lblNow.Caption := '目前狀態：設定Excel';
 
           //分類-考生
           for y := 0 to DM.qrySearch.RecordCount - 1 do
           begin
             g1.Progress := g1.Progress + 1;
-            lblNow.Caption := '目前狀態：讀取考生資料';
             {$region '切割身分註記'}
             SQLtemp.Clear;
             str := '';
@@ -231,7 +231,6 @@ begin
               str := str + SQLtemp[z] + #9;
             end;
             {$endregion}
-
             {$region '切割原始作答'}
             str2 := '';
             SQLtemp.Clear;
@@ -246,24 +245,19 @@ begin
                 str2 := str2 + SQLtemp[z] + #9;
             end;
             {$endregion}
-
             {$region '儲存資料至剪貼簿'}
             SListA.Add(DM.qrySearch.FieldByName('學校代碼').AsString + #9 + DM.qrySearch.FieldByName('學校名稱').AsString + #9 + DM.qrySearch.FieldByName('分校註記').AsString + #9 + DM.qrySearch.FieldByName('測驗科目代碼').AsString + #9 + DM.qrySearch.FieldByName('年級').AsString + #9 + Trim(DM.qrySearch.FieldByName('班級代碼').AsString) + #9 + Trim(DM.qrySearch.FieldByName('班級名稱').AsString) + #9 + DM.qrySearch.FieldByName('座號').AsString + #9 + DM.qrySearch.FieldByName('學生姓名').AsString + #9 + DM.qrySearch.FieldByName('性別代碼').AsString + #9 + DM.qrySearch.FieldByName('導師姓名').AsString + #9 + str + #9    //身分註記
               + str2);   //原始作答
             {$endregion}
-
             DM.qrySearch.Next;
           end;
           Clipboard.Clear; //先清空剪貼簿
           Clipboard.AsText := SListA.Text; //複製資料到剪貼簿
-
+          g1.Progress := g1.Progress + 1;
 
           {$region '設定Excel 格式'}
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
-          g1.Progress := g1.Progress + 1;
-          lblNow.Caption := '目前狀態：設定Excel格式';
-
           //單元格背景色
           for y := 1 to ExcelApp.ActiveSheet.UsedRange.Rows.Count do
           begin
@@ -297,7 +291,6 @@ begin
 
           SListA.clear;
           g1.Progress := g1.MaxValue;
-          lblNow.Caption := '目前狀態：完成';
           gTotal.Progress := gTotal.Progress + 1;
           DM.qryTemp.next; //切換下一筆科目
         end;

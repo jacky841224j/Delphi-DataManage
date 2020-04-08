@@ -76,7 +76,6 @@ type
     gTotal: TGauge;
     lblTotal: TLabel;
     lblNow: TLabel;
-    lbl2: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure btnExitClick(Sender: TObject);

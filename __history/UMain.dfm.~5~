@@ -1086,24 +1086,11 @@ object fmMain: TfmMain
         ParentFont = False
       end
       object lblNow: TLabel
-        Left = 544
+        Left = 416
         Top = 62
-        Width = 24
+        Width = 96
         Height = 31
-        Caption = #28961
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -24
-        Font.Name = #24494#36575#27491#40657#39636
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
-      object lbl2: TLabel
-        Left = 418
-        Top = 62
-        Width = 120
-        Height = 31
-        Caption = #30070#21069#29376#24907#65306
+        Caption = #30070#21069#29376#24907
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -24

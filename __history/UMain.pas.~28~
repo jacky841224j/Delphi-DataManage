@@ -132,10 +132,8 @@ begin
     Exit;
   end;
 
-  gTotal.Progress := 0;
   SQLtemp := TStringList.Create;
   SListA  := TStringList.Create;
-  gTotal.MaxValue := mmoCheck.Lines.Count ;
 
   {$region '插入標題'}
   strTitle :=
@@ -146,16 +144,11 @@ begin
   {$endregion}
 
   SaveDialog1.Filter := '.xlsx|*.xlsx';
-  SaveDialog1.FileName := '預設為學校名稱';
+  SaveDialog1.FileName := '預設名稱';
   if SaveDialog1.Execute then
   begin
     try
       try
-      //分類-學校
-      for I := 0 to mmoCheck.Lines.Count - 1 do
-      begin
-        g1.Progress := g1.Progress + 1;
-
         {$region '判斷科目總數'}
         SQLStr  := 'SELECT Sub_No '
                  + 'FROM Exam_Sub '
@@ -164,16 +157,19 @@ begin
         SubCount :=  DM.qryTemp.RecordCount;
         {$endregion}
 
-        g1.MaxValue := SubCount * 4;
+        gTotal.MaxValue := SubCount ;
+
         //分類-科目
         for x := 1 to SubCount  do
         begin
+          g1.Progress := 0;
+
           {$region 'SQL科目語法'}
           SQLStr := ' SELECT left(st.[Address],6) AS 學校代碼, '
 //                  + '       s.Sch_Memo as 學校代碼, '
                   + '       s.Sch_Name as 學校名稱, '
                   + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) else 0 end as 分校註記,'
-                  + '       Sub_No AS 測驗科目代碼, '
+                  + '       case Sub_No when 01 then ''C'' when 02 then ''M''  when 03 then ''E'' end AS 測驗科目代碼, '
                   + '       sc.grade as 年級, '
                   + '       sc.Sch_Code as 班級代碼, '
 //                  + '       B_Year as 班級代碼, '
@@ -190,11 +186,14 @@ begin
                   + ' left join School  s on left([Student_No],3) = s.Sch_Code '
                   + ' left join Student st on ss.Student_No = st.Student_No '
                   + ' left join Sch_Class sc on s.Sch_Code = sc.Sch_Code and sc.Class_No = st.Class_No '
-                  + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString+' and left(ss.[Student_No],3) = '+ Copy(mmoCheck.Lines[i],0,3) + ' and  Exam_No = ' +QuotedStr(cmbExam.Text)
-                  + ' order by s.Sch_Code,Sub_No,sc.Sch_Code,st.Seat_No';
+                  + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString + ' and  Exam_No = ' +QuotedStr(cmbExam.Text)
+//                  + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString+' and left(ss.[Student_No],3) = '+ Copy(mmoCheck.Lines[i],0,3) + ' and  Exam_No = ' +QuotedStr(cmbExam.Text)
+                  + ' order by s.Sch_Code,Sub_No,sc.grade,st.Seat_No';
           OpenSQL(DM.qrySearch, SQLStr);
+
           {$endregion}
 
+          g1.MaxValue := DM.qrySearch.RecordCount +7  ;
           g1.Progress := g1.Progress + 1;
 
           {$region 'SQL總題數語法'}
@@ -204,6 +203,8 @@ begin
           OpenSQL(DM.qrySClass, SQLStr);
           QueCounut:= DM.qrySClass.FieldByName('iCount').AsInteger;
           {$endregion}
+
+          g1.Progress := g1.Progress + 1;
 
           {$region '儲存Excel Title'}
           strTitle2 := '';
@@ -216,6 +217,8 @@ begin
           SListA.Append(strTitle);
           SListA.Append(strTitle2);
           {$endregion}
+
+          g1.Progress := g1.Progress + 1;
 
           {$region 'Excel初始化設定'}
           g1.Progress := g1.Progress + 1;
@@ -232,8 +235,9 @@ begin
           g1.Progress := g1.Progress + 1;
 
           //分類-考生
-          for y := 0 to DM.qrySearch.FieldCount - 1 do
+          for y := 0 to DM.qrySearch.RecordCount - 1 do
           begin
+            g1.Progress := g1.Progress + 1;
             {$region '切割身分註記'}
             SQLtemp.Clear;
             str := '';
@@ -279,9 +283,10 @@ begin
             {$endregion}
             DM.qrySearch.Next;
           end;
-          g1.Progress := g1.Progress + 1;
           Clipboard.Clear; //先清空剪貼簿
           Clipboard.AsText := SListA.Text; //複製資料到剪貼簿
+          g1.Progress := g1.Progress + 1;
+
           {$region '設定Excel 格式'}
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
@@ -296,12 +301,12 @@ begin
             begin
               ExcelApp.Rows[y].Interior.Color:= RGB(242, 220, 219);
             end;
-            //框線
-            for z := 1 to ExcelApp.ActiveSheet.UsedRange.Columns.Count  do
-            begin
-              ExcelApp.cells[y,z].Borders[9].Weight := xlThin;
-              ExcelApp.cells[y,z].Borders[10].Weight := xlThin;
-            end;
+//            //框線
+//            for z := 1 to ExcelApp.ActiveSheet.UsedRange.Columns.Count  do
+//            begin
+//              ExcelApp.cells[y,z].Borders[9].Weight := xlThin;
+//              ExcelApp.cells[y,z].Borders[10].Weight := xlThin;
+//            end;
           end;
           ExcelApp.Rows[1].Interior.Color:= RGB(153,204,255);
           ExcelApp.Range['S1'].Interior.Color:= RGB(255,255,0);
@@ -315,18 +320,16 @@ begin
           //置中
           ExcelApp.Cells.HorizontalAlignment:=-4108;
           {$endregion}
+
           SListA.clear;
+          g1.Progress := g1.MaxValue  ;
+          gTotal.Progress := gTotal.Progress + 1;
           DM.qryTemp.next; //切換下一筆科目
-          DM.qrySClass.Next;
         end;
-        g1.Progress := 0;
-        gTotal.Progress := gTotal.Progress + 1;
+        gTotal.Progress := gTotal.MaxValue;
         ExcelApp.ActiveWorkBook.Saved := True; //設定不存檔，若不設定關閉時會出現"是否存檔的對話框"
         ExcelApp.WorkBooks[1].SaveAs(ExtractFilePath(SaveDialog1.FileName)+DM.qrySearch.FieldByName('學校名稱').AsString+'_作答反應.xlsx'); //存檔
         ExcelApp.WorkBooks.close; //關閉Excel
-      end;
-        gTotal.Progress := gTotal.MaxValue;
-        g1.Progress := g1.MaxValue ;
         ShowMessage('匯出完成');
       except
         ShowMessage('匯出錯誤，請重新檢查設定');

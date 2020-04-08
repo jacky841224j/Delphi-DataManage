@@ -76,7 +76,6 @@ type
     gTotal: TGauge;
     lblTotal: TLabel;
     lblNow: TLabel;
-    lbl2: TLabel;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -176,6 +175,7 @@ begin
 
           g1.MaxValue := DM.qrySearch.RecordCount + 7;
           g1.Progress := g1.Progress + 1;
+          lblNow.Caption := '目前狀態：讀取科目';
 
           {$region 'SQL總題數語法'}
           SQLStr := 'Select Count(*) as iCount From Sub_Ans' + ' Where Exam_No=' + #39 + Trim(cmbExam.Text) + #39 + ' And Sub_No=' + #39 + DM.qryTemp.FieldByName('Sub_No').AsString + #39;
@@ -184,6 +184,7 @@ begin
           {$endregion}
 
           g1.Progress := g1.Progress + 1;
+          lblNow.Caption := '目前狀態：讀取科目題數';
 
           {$region '儲存Excel Title'}
           strTitle2 := '';
@@ -219,7 +220,7 @@ begin
           for y := 0 to DM.qrySearch.RecordCount - 1 do
           begin
             g1.Progress := g1.Progress + 1;
-            lblNow.Caption := '目前狀態：讀取考生資料';
+            lblNow.Caption := '目前狀態：讀取考生資料('+y+'/'+DM.qrySearch.RecordCount ;
             {$region '切割身分註記'}
             SQLtemp.Clear;
             str := '';
@@ -262,7 +263,7 @@ begin
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
           g1.Progress := g1.Progress + 1;
-          lblNow.Caption := '目前狀態：設定Excel格式';
+          lblNow.Caption := '目前狀態：設定Excele格式';
 
           //單元格背景色
           for y := 1 to ExcelApp.ActiveSheet.UsedRange.Rows.Count do
@@ -297,7 +298,6 @@ begin
 
           SListA.clear;
           g1.Progress := g1.MaxValue;
-          lblNow.Caption := '目前狀態：完成';
           gTotal.Progress := gTotal.Progress + 1;
           DM.qryTemp.next; //切換下一筆科目
         end;
