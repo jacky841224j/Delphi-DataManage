@@ -1073,7 +1073,7 @@ object fmMain: TfmMain
         Progress = 0
       end
       object CheckListBox4: TCheckListBox
-        Left = 3
+        Left = 380
         Top = 96
         Width = 326
         Height = 391
@@ -1113,7 +1113,7 @@ object fmMain: TfmMain
         OnClick = btnExcelClick
       end
       object mmoCheck: TMemo
-        Left = 380
+        Left = 3
         Top = 96
         Width = 326
         Height = 391

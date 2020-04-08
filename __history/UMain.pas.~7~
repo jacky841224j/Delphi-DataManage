@@ -169,13 +169,12 @@ begin
         for x := 1 to SubCount  do
         begin
           {$region 'SQL科目語法'}
-          SQLStr := ' SELECT left(st.[Address],6) AS 學校代碼, '
-//                  + '       s.Sch_Memo as 學校代碼, '
+          SQLStr := ' SELECT left(ss.[Student_No],3) AS 學校代碼, '
                   + '       s.Sch_Name as 學校名稱, '
-                  + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) else 0 end as 分校註記,'
-                  + '       case Sub_No when 01 then ''C'' when 02 then ''M''  when 03 then ''E'' end AS 測驗科目代碼, '
+                    + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) else 0 end as 分校註記,'
+                  + '       Sub_No AS 測驗科目代碼, '
                   + '       sc.grade as 年級, '
-                  + '       sc.Sch_Code as 班級代碼, '
+                  + '       sc.Class_No as 班級代碼, '
 //                  + '       B_Year as 班級代碼, '
                   + '       (sc.grade +''年''+rtrim(sc.Class_Name)+''班'') as 班級名稱, '
 //                  + '       (sc.grade +''年''+rtrim(B_Year)+''班'') as 班級名稱, '
@@ -191,7 +190,7 @@ begin
                   + ' left join Student st on ss.Student_No = st.Student_No '
                   + ' left join Sch_Class sc on s.Sch_Code = sc.Sch_Code and sc.Class_No = st.Class_No '
                   + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString+' and left(ss.[Student_No],3) = '+ Copy(mmoCheck.Lines[i],0,3) + ' and  Exam_No = ' +QuotedStr(cmbExam.Text)
-                  + ' order by s.Sch_Code,Sub_No,sc.grade,st.Seat_No';
+                  + ' order by s.Sch_Code,Sub_No,sc.Class_No,st.Seat_No';
           OpenSQL(DM.qrySearch, SQLStr);
           {$endregion}
 

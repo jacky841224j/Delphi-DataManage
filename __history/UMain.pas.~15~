@@ -173,7 +173,7 @@ begin
 //                  + '       s.Sch_Memo as 學校代碼, '
                   + '       s.Sch_Name as 學校名稱, '
                   + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) else 0 end as 分校註記,'
-                  + '       case Sub_No when 01 then ''C'' when 02 then ''M''  when 03 then ''E'' end AS 測驗科目代碼, '
+                  + '       Sub_No AS 測驗科目代碼, '
                   + '       sc.grade as 年級, '
                   + '       sc.Sch_Code as 班級代碼, '
 //                  + '       B_Year as 班級代碼, '

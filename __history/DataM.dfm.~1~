@@ -9,8 +9,9 @@ object DM: TDM
     Top = 160
   end
   object ADOConnection1: TADOConnection
+    ConnectionString = 'FILE NAME=.\dbH.udl'
     LoginPrompt = False
-    Provider = 'SQLOLEDB.1'
+    Provider = '.\dbH.udl'
     Left = 49
     Top = 105
   end

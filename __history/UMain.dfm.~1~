@@ -1031,8 +1031,9 @@ object fmMain: TfmMain
     object TabSheet6: TTabSheet
       Caption = #20316#31572#21453#25033#21295#20986
       ImageIndex = 5
+      ExplicitLeft = 6
       object lbl1: TLabel
-        Left = 622
+        Left = 448
         Top = 64
         Width = 84
         Height = 26
@@ -1073,9 +1074,9 @@ object fmMain: TfmMain
         Progress = 0
       end
       object CheckListBox4: TCheckListBox
-        Left = 3
+        Left = 12
         Top = 96
-        Width = 326
+        Width = 241
         Height = 391
         OnClickCheck = CheckListBox4ClickCheck
         Align = alCustom
@@ -1089,7 +1090,7 @@ object fmMain: TfmMain
         TabOrder = 0
       end
       object CheckBox5: TCheckBox
-        Left = 268
+        Left = 192
         Top = 65
         Width = 61
         Height = 25
@@ -1104,7 +1105,7 @@ object fmMain: TfmMain
         OnClick = CheckBox5Click
       end
       object btnExcel: TButton
-        Left = 727
+        Left = 639
         Top = 96
         Width = 176
         Height = 113
@@ -1113,9 +1114,9 @@ object fmMain: TfmMain
         OnClick = btnExcelClick
       end
       object mmoCheck: TMemo
-        Left = 380
+        Left = 291
         Top = 96
-        Width = 326
+        Width = 241
         Height = 391
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1142,11 +1143,7 @@ object fmMain: TfmMain
     Top = 40
   end
   object Conn1: TADOConnection
-    ConnectionString = 
-      'Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security In' +
-      'fo=False;Initial Catalog=107SchExam_TY_5_TEST;Data Source=.'
     LoginPrompt = False
-    Provider = 'SQLOLEDB.1'
     Left = 440
     Top = 40
   end
