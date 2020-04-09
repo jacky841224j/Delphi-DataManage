@@ -273,7 +273,7 @@ begin
 
             {$region '儲存資料至剪貼簿'}
             SListA.Add(DM.qrySearch.FieldByName('學校代碼').AsString + #9 + DM.qrySearch.FieldByName('學校名稱').AsString + #9 + DM.qrySearch.FieldByName('分校註記').AsString + #9 + DM.qrySearch.FieldByName('測驗科目代碼').AsString + #9 + DM.qrySearch.FieldByName('年級').AsString + #9 + Trim(DM.qrySearch.FieldByName('班級代碼').AsString) + #9 + Trim(DM.qrySearch.FieldByName('班級名稱').AsString) + #9 + DM.qrySearch.FieldByName('座號').AsString + #9 + DM.qrySearch.FieldByName('學生姓名').AsString + #9 + DM.qrySearch.FieldByName('性別代碼').AsString + #9 + DM.qrySearch.FieldByName('導師姓名').AsString + #9 + str + #9    //身分註記
-            + str2);   //原始作答
+              + str2);   //原始作答
             {$endregion}
 
             DM.qrySearch.Next;
@@ -307,8 +307,8 @@ begin
           //框線
           ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].LineStyle := 1;
           ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].Weight := 2;
-          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].LineStyle := 1;
-          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].Weight := 2;
+          ExcelApp.Rows['1:'+inttostr(ColCount)].Borders[9].LineStyle := 1;
+          ExcelApp.Rows['1:'+inttostr(ColCount)].Borders[9].Weight := 2;
           //置中
           ExcelApp.Cells.HorizontalAlignment := -4108;
           //凍結欄位
