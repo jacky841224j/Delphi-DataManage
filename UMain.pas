@@ -305,8 +305,8 @@ begin
           for y := 1 to 11 do
             ExcelApp.ActiveSheet.Range[ExcelApp.cells[1, y], ExcelApp.cells[2, y]].Merge;
           //框線
-          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].LineStyle := 1;
-          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].Weight := 2;
+//          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].LineStyle := 1;
+//          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].Weight := 2;
           ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].LineStyle := 1;
           ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].Weight := 2;
           //置中
@@ -317,6 +317,7 @@ begin
           ExcelApp.ActiveWindow.FreezePanes := true;
           //自適欄寬
           ExcelApp.Cells.EntireColumn.AutoFit;
+          ExcelApp.Cells.Font.Name := '微軟正黑體';
           {$endregion}
 
           SListA.clear;
