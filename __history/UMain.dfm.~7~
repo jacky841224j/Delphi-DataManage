@@ -1164,15 +1164,6 @@ object fmMain: TfmMain
         ParentFont = False
         TabOrder = 3
       end
-      object btnExcelAll: TButton
-        Left = 743
-        Top = 304
-        Width = 176
-        Height = 113
-        Caption = #20840#37096#21295#20986'('#19981#20998#26657')'
-        TabOrder = 4
-        OnClick = btnExcelAllClick
-      end
     end
   end
   object SaveDialog1: TSaveDialog

@@ -77,6 +77,7 @@ type
     lblTotal: TLabel;
     lblNow: TLabel;
     lbl2: TLabel;
+    btnExcelAll: TButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure btnExitClick(Sender: TObject);
@@ -103,6 +104,7 @@ type
     procedure CheckListBox4ClickCheck(Sender: TObject);
     procedure CheckBox5Click(Sender: TObject);
     procedure btnExcelClick(Sender: TObject);
+    procedure btnExcelAllClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -121,7 +123,7 @@ implementation
 uses
   DataM, StrUtil;
 
-procedure TfmMain.btnExcelClick(Sender: TObject);
+procedure TfmMain.btnExcelAllClick(Sender: TObject);
 var
   str, str2, strTitle, strTitle2, strtemp,title: string;
   SQLtemp, SListA: TStringList;
@@ -131,6 +133,7 @@ var
 begin
   try
     ExcelApp := CreateOleObject('Excel.Application'); //Create Excel 物件
+    ExcelApp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
   except
     ShowMessage('尚未安裝任何 Excel 版本.');
     Exit;
@@ -228,14 +231,12 @@ begin
           g1.Progress := g1.Progress + 1;
           ExcelApp.DisplayAlerts := False;  //關閉提示視窗
           ExcelApp.Visible := FALSE; //不顯示Excel 視窗
-          if x = 1 then
-            ExcelApp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
+          if ExcelApp.WorkBooks.Count < 3 then
+            ExcelApp.WorkBooks[1].WorkSheets.Add(null, null, 2, xlWorksheet);
           ExcelApp.WorkSheets[x].Activate;
           ExcelApp.WorkSheets[x].Name := '科目名稱_' + DM.qryTemp.FieldByName('Sub_Name').AsString; //工作表更名
           strFormat := '@'; //@: 儲存格格式改為文字
           ExcelApp.WorkSheets[x].Cells.NumberFormatLocal := strFormat; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
-          RowsCount :=  ExcelApp.ActiveSheet.UsedRange.Rows.Count;
-          ColCount :=   ExcelApp.ActiveSheet.UsedRange.Columns.Count;
           {$endregion}
 
           g1.Progress := g1.Progress + 1;
@@ -275,7 +276,7 @@ begin
 
             {$region '儲存資料至剪貼簿'}
             SListA.Add(DM.qrySearch.FieldByName('學校代碼').AsString + #9 + DM.qrySearch.FieldByName('學校名稱').AsString + #9 + DM.qrySearch.FieldByName('分校註記').AsString + #9 + DM.qrySearch.FieldByName('測驗科目代碼').AsString + #9 + DM.qrySearch.FieldByName('年級').AsString + #9 + Trim(DM.qrySearch.FieldByName('班級代碼').AsString) + #9 + Trim(DM.qrySearch.FieldByName('班級名稱').AsString) + #9 + DM.qrySearch.FieldByName('座號').AsString + #9 + DM.qrySearch.FieldByName('學生姓名').AsString + #9 + DM.qrySearch.FieldByName('性別代碼').AsString + #9 + DM.qrySearch.FieldByName('導師姓名').AsString + #9 + str + #9    //身分註記
-              + str2);   //原始作答
+            + str2);   //原始作答
             {$endregion}
 
             DM.qrySearch.Next;
@@ -286,6 +287,8 @@ begin
           {$region '設定Excel 格式'}
           ExcelApp.Range['A1'].Select;
           ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
+          RowsCount :=  ExcelApp.ActiveSheet.UsedRange.Rows.Count;
+          ColCount :=   ExcelApp.ActiveSheet.UsedRange.Columns.Count;
           g1.Progress := g1.Progress + 1;
           lblNow.Caption := '設定Excel格式';
 
@@ -305,14 +308,10 @@ begin
           for y := 1 to 11 do
             ExcelApp.ActiveSheet.Range[ExcelApp.cells[1, y], ExcelApp.cells[2, y]].Merge;
           //框線
-          ExcelApp.Range[ExcelApp.cells[3, ExcelApp.ActiveSheet.UsedRange.Rows.Count], ExcelApp.cells[ExcelApp.ActiveSheet.UsedRange.Columns.Count, ExcelApp.ActiveSheet.UsedRange.Rows.Count]].Borders[2].LineStyle := 1;
-//          ExcelApp.Rows[3+':'+ExcelApp.ActiveSheet.UsedRange.Rows.Count].Borders[2].LineStyle := 1;
-//          ExcelApp.Rows[3+':'+ExcelApp.ActiveSheet.UsedRange.Rows.Count].Borders[9].Weight := 2;
-//          ExcelApp.Rows[3+':'+ExcelApp.ActiveSheet.UsedRange.Rows.Count].Borders[2].Weight := 2;
-//          ExcelApp.Selection.Borders[2].LineStyle := 1;
-//          ExcelApp.Selection.Borders[9].LineStyle := 1;
-//          ExcelApp.Selection.Borders[2].Weight := 2;
-//          ExcelApp.Selection.Borders[9].Weight := 2;
+//          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].LineStyle := 1;
+//          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].Weight := 2;
+          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].LineStyle := 1;
+          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].Weight := 2;
           //置中
           ExcelApp.Cells.HorizontalAlignment := -4108;
           //凍結欄位
@@ -321,6 +320,7 @@ begin
           ExcelApp.ActiveWindow.FreezePanes := true;
           //自適欄寬
           ExcelApp.Cells.EntireColumn.AutoFit;
+          ExcelApp.Cells.Font.Name := '微軟正黑體';
           {$endregion}
 
           SListA.clear;
@@ -333,6 +333,236 @@ begin
         ExcelApp.ActiveWorkBook.Saved := True; //設定不存檔，若不設定關閉時會出現"是否存檔的對話框"
         ExcelApp.WorkBooks[1].SaveAs(ExtractFilePath(SaveDialog1.FileName)+title + '_作答反應.xlsx'); //存檔
         ExcelApp.WorkBooks.close; //關閉Excel
+        ShowMessage('匯出完成');
+      except
+        ShowMessage('匯出錯誤 - '+lblNow.Caption);
+      end;
+    finally
+      SListA.Free;
+      SQLtemp.Free;
+      ExcelApp.Quit; //離開Excel
+      ExcelApp := Unassigned; //釋放ExcelApp;
+    end;
+  end
+  else
+    ShowMessage('請選擇儲存位置');
+end;
+
+procedure TfmMain.btnExcelClick(Sender: TObject);
+var
+  str, str2, strTitle, strTitle2, strtemp,schStr: string;
+  SQLtemp, SListA: TStringList;
+  i, x, y, z, SubCount, QueCounut, RowsCount, ColCount: integer;
+  sch :integer ;
+  ExcelApp: Variant;
+  strFormat: OleVariant;
+begin
+  try
+    ExcelApp := CreateOleObject('Excel.Application'); //Create Excel 物件
+    ExcelApp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
+  except
+    ShowMessage('尚未安裝任何 Excel 版本.');
+    Exit;
+  end;
+
+  SQLtemp := TStringList.Create;
+  SListA := TStringList.Create;
+
+  {$region '插入標題'}
+  strTitle := '學校代碼' + #9 + '學校名稱' + #9 + '分校/分班註記' + #9 + '測驗科目代碼' + #9 + '年級' + #9 + '班級代碼' + #9 + '班級名稱' + #9 + '座號' + #9 + '學生姓名' + #9 + '性別代碼' + #9 + '導師姓名' + #9 + '身分註記' + #9 + #9 + #9 + #9 + #9 + #9 + #9 + '學生原始作答反應' + #9;
+  strTitle2 := #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + '資賦優異' + #9 + '資源班' + #9 + '原住民子女' + #9'新住民子女' + #9 + '才藝班學生' + #9 + '體育班學生' + #9 + '非學校型態實驗教育者（在家教育）' + #9;
+  {$endregion}
+
+  SaveDialog1.Filter := '.xlsx|*.xlsx';
+  SaveDialog1.FileName := '預設名稱';
+  if SaveDialog1.Execute then
+  begin
+    gTotal.MaxValue := SubCount;
+    try
+      try
+        for sch := 0 to mmoCheck.Lines.Count - 1 do
+        begin
+          {$region '判斷科目總數'}
+          SQLStr := 'SELECT es.Sub_No,Sub_Name FROM Exam_Sub es '
+                  + 'left join Ex_Subject ej on es.Sub_No = ej.Sub_No '
+                  + 'where Exam_No =' + QuotedStr(cmbExam.text);
+          OpenSQL(DM.qryTemp, SQLStr);
+          SubCount := DM.qryTemp.RecordCount;
+          {$endregion}
+
+          {$region '儲存學校名稱'}
+          schStr := '' ;
+          schStr := Copy(mmoCheck.Lines[sch],pos('-',mmoCheck.Lines[sch])+1,Length(mmoCheck.Lines[sch]));
+          {$endregion}
+
+          //分類-科目
+          for x := 1 to SubCount do
+          begin
+            g1.Progress := 0;
+
+            {$region 'SQL科目語法'}
+            SQLStr := ' SELECT left(st.[Address],6) AS 學校代碼, '
+            //                  + '       s.Sch_Memo as 學校代碼, '
+                    + '       s.Sch_Name as 學校名稱, '
+                    + '       case len(s.Sch_Memo) when  6 then 0  when 7 then substring(s.Sch_Memo,7,7) else 0 end as 分校註記,'
+                    + '       case Sub_No when 01 then ''C'' when 02 then ''M''  when 03 then ''E'' end AS 測驗科目代碼, '
+                    + '       sc.grade as 年級, '
+                    + '       sc.Sch_Code as 班級代碼, '//                  + '       B_Year as 班級代碼, '
+                    + '       (sc.grade +''年''+rtrim(sc.Class_Name)+''班'') as 班級名稱, '
+                    //                  + '       (sc.grade +''年''+rtrim(B_Year)+''班'') as 班級名稱, '
+                    + '       st.Seat_No as 座號, '
+                    + '       Student_Name as 學生姓名, '
+                    + '       Sex as 性別代碼, '
+                    + '       Remark1 as 導師姓名,'
+                    + '       Remark as 身分註記,'
+                    //                  + '       Remark1 as 身分註記,'
+                    + '       ans as 原始作答反映 '
+                    + ' FROM Sub_Score ss ' + ' left join School  s on left([Student_No],3) = s.Sch_Code '
+                    + ' left join Student st on ss.Student_No = st.Student_No '
+                    + ' left join Sch_Class sc on s.Sch_Code = sc.Sch_Code and sc.Class_No = st.Class_No '
+                    + ' where Sub_No = ' + DM.qryTemp.FieldByName('Sub_No').AsString + ' and  Exam_No = ' + QuotedStr(cmbExam.Text) + ' and s.Sch_Name = ' + QuotedStr(schStr)
+  //                  + ' where Sub_No = '+DM.qryTemp.FieldByName('Sub_No').AsString+' and left(ss.[Student_No],3) = '+ Copy(mmoCheck.Lines[i],0,3) + ' and  Exam_No = ' +QuotedStr(cmbExam.Text)
+                    + ' order by s.Sch_Code,Sub_No,sc.grade,st.Seat_No';
+            OpenSQL(DM.qrySearch, SQLStr);
+
+            {$endregion}
+
+            g1.MaxValue := DM.qrySearch.RecordCount + 7;
+            g1.Progress := g1.Progress + 1;
+
+            {$region 'SQL總題數語法'}
+            SQLStr := 'Select Count(*) as iCount From Sub_Ans' + ' Where Exam_No=' + #39 + Trim(cmbExam.Text) + #39 + ' And Sub_No=' + #39 + DM.qryTemp.FieldByName('Sub_No').AsString + #39;
+            OpenSQL(DM.qrySClass, SQLStr);
+            QueCounut := DM.qrySClass.FieldByName('iCount').AsInteger;
+            {$endregion}
+
+            g1.Progress := g1.Progress + 1;
+
+            {$region '儲存Excel Title'}
+            strTitle2 := '';
+            strTitle2 := #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + #9 + '資賦優異' + #9 + '資源班' + #9 + '原住民子女' + #9'新住民子女' + #9 + '才藝班學生' + #9 + '體育班學生' + #9 + '非學校型態實驗教育者（在家教育）' + #9;
+            for y := 1 to QueCounut do
+            begin
+              strTitle2 := strTitle2 + '第' + IntToStr(y) + '題' + #9;
+            end;
+
+            SListA.Append(strTitle);
+            SListA.Append(strTitle2);
+            {$endregion}
+
+            g1.Progress := g1.Progress + 1;
+            lblNow.Caption := '設定標題';
+
+            {$region 'Excel初始化設定'}
+            g1.Progress := g1.Progress + 1;
+            ExcelApp.DisplayAlerts := False;  //關閉提示視窗
+            ExcelApp.Visible := False; //不顯示Excel 視窗
+            if x = 1 then
+              ExcelApp.WorkBooks.Add; //新增工作簿(預設為三個工作表)
+            if ExcelApp.WorkSheets.Count < 3 then
+              ExcelApp.WorkBooks[1].WorkSheets.Add(null, null, 2, xlWorksheet);
+            ExcelApp.WorkSheets[x].Activate;
+            ExcelApp.WorkSheets[x].Name := '科目名稱_' + DM.qryTemp.FieldByName('Sub_Name').AsString; //工作表更名
+            strFormat := '@'; //@: 儲存格格式改為文字
+            ExcelApp.WorkSheets[x].Cells.NumberFormatLocal := strFormat; //設定儲格格式(一定要宣告OleVariant，直接等於'@'無
+            {$endregion}
+
+            g1.Progress := g1.Progress + 1;
+            lblNow.Caption := '初始化Excel設定';
+
+            //分類-考生
+            for y := 0 to DM.qrySearch.RecordCount - 1 do
+            begin
+              g1.Progress := g1.Progress + 1;
+              lblNow.Caption := '讀取考生資料';
+              {$region '切割身分註記'}
+              SQLtemp.Clear;
+              str := '';
+              SQLtemp.Add(DM.qrySearch.FieldByName('身分註記').AsString);
+              SQLtemp.Delimiter := '-';
+              SQLtemp.DelimitedText := SQLtemp.Text;
+              for z := 0 to SQLtemp.Count - 1 do
+              begin
+                str := str + SQLtemp[z] + #9;
+              end;
+              {$endregion}
+
+              {$region '切割原始作答'}
+              str2 := '';
+              SQLtemp.Clear;
+              SQLtemp.Add(DM.qrySearch.FieldByName('原始作答反映').AsString);
+              SQLtemp.Delimiter := ',';
+              SQLtemp.DelimitedText := SQLtemp.Text;
+              for z := 0 to SQLtemp.Count - 1 do
+              begin
+                if Length(SQLtemp[z]) > 1 then
+                  str2 := str2 + '?' + #9
+                else
+                  str2 := str2 + SQLtemp[z] + #9;
+              end;
+              {$endregion}
+
+              {$region '儲存資料至剪貼簿'}
+              SListA.Add(DM.qrySearch.FieldByName('學校代碼').AsString + #9 + DM.qrySearch.FieldByName('學校名稱').AsString + #9 + DM.qrySearch.FieldByName('分校註記').AsString + #9 + DM.qrySearch.FieldByName('測驗科目代碼').AsString + #9 + DM.qrySearch.FieldByName('年級').AsString + #9 + Trim(DM.qrySearch.FieldByName('班級代碼').AsString) + #9 + Trim(DM.qrySearch.FieldByName('班級名稱').AsString) + #9 + DM.qrySearch.FieldByName('座號').AsString + #9 + DM.qrySearch.FieldByName('學生姓名').AsString + #9 + DM.qrySearch.FieldByName('性別代碼').AsString + #9 + DM.qrySearch.FieldByName('導師姓名').AsString + #9 + str + #9    //身分註記
+              + str2);   //原始作答
+              {$endregion}
+
+              DM.qrySearch.Next;
+            end;
+            Clipboard.Clear; //先清空剪貼簿
+            Clipboard.AsText := SListA.Text; //複製資料到剪貼簿
+
+            {$region '設定Excel 格式'}
+            ExcelApp.Range['A1'].Select;
+            ExcelApp.Range['A1'].PasteSpecial; //在A1貼上
+            RowsCount :=  ExcelApp.ActiveSheet.UsedRange.Rows.Count;
+            ColCount :=   ExcelApp.ActiveSheet.UsedRange.Columns.Count;
+            g1.Progress := g1.Progress + 1;
+            lblNow.Caption := '設定Excel格式';
+
+            //設定背景色
+            ExcelApp.Selection.FormatConditions.Add(xlExpression,Formula1:='=MOD(ROW(),2)=0');
+            ExcelApp.Selection.FormatConditions[1].Interior.Color := RGB(235, 241, 222);
+            ExcelApp.Selection.FormatConditions.Add(xlExpression,Formula1:='=MOD(ROW(),2)=1');
+            ExcelApp.Selection.FormatConditions[2].Interior.Color := RGB(242, 220, 219);
+            ExcelApp.Rows['1:2'].FormatConditions.Delete;
+            ExcelApp.Rows[1].Interior.Color := RGB(153, 204, 255);
+            ExcelApp.Range['S1'].Interior.Color := RGB(255, 255, 0);
+            ExcelApp.Range['L2:R2'].Interior.Color := RGB(197, 217, 241);
+            ExcelApp.Range[ExcelApp.cells[2, 19], ExcelApp.cells[2, QueCounut + 18]].Interior.Color := RGB(255, 255, 204);
+            //合併儲存格
+            ExcelApp.ActiveSheet.Range[ExcelApp.cells[1, 19], ExcelApp.cells[1, QueCounut + 18]].Merge;
+            ExcelApp.ActiveSheet.Range['L1:R1'].Merge;
+            for y := 1 to 11 do
+              ExcelApp.ActiveSheet.Range[ExcelApp.cells[1, y], ExcelApp.cells[2, y]].Merge;
+            //框線
+  //          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].LineStyle := 1;
+  //          ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[2].Weight := 2;
+            ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].LineStyle := 1;
+            ExcelApp.rows['3:'+inttostr(RowsCount)].Borders[4].Weight := 2;
+            //置中
+            ExcelApp.Cells.HorizontalAlignment := -4108;
+            //凍結欄位
+            ExcelApp.ActiveWindow.SplitColumn := 0;
+            ExcelApp.ActiveWindow.SplitRow  := 2;
+            ExcelApp.ActiveWindow.FreezePanes := true;
+            //自適欄寬
+            ExcelApp.Cells.EntireColumn.AutoFit;
+            ExcelApp.Cells.Font.Name := '微軟正黑體';
+            {$endregion}
+
+            SListA.clear;
+            g1.Progress := g1.MaxValue;
+            lblNow.Caption := '完成';
+            gTotal.Progress := gTotal.Progress + 1;
+            DM.qryTemp.next; //切換下一筆科目
+          end;
+          gTotal.Progress := gTotal.MaxValue;
+          ExcelApp.ActiveWorkBook.Saved := True; //設定不存檔，若不設定關閉時會出現"是否存檔的對話框"
+          ExcelApp.WorkBooks[1].SaveAs(ExtractFilePath(SaveDialog1.FileName)+schStr + '_作答反應.xlsx'); //存檔
+          ExcelApp.WorkBooks.close; //關閉Excel
+        end;
+
         ShowMessage('匯出完成');
       except
         ShowMessage('匯出錯誤 - '+lblNow.Caption);
